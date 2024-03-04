@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Profile</title>
+</head>
+<body>
+    <h1>View Profile</h1>
+    <div>
+        <h2>Profile Title</h2>
+        <p>{{ profile['profile_title'] }}</p>
+    </div>
+    <div>
+        <h2>Major</h2>
+        <p>{{ profile['major'] }}</p>
+    </div>
+    <div>
+        <h2>University</h2>
+        <p>{{ profile['university'] }}</p>
+    </div>
+    <div>
+        <h2>About</h2>
+        <p>{{ profile['about'] }}</p>
+    </div>
+    <div>
+        <h2>Experience</h2>
+        <ul>
+            {% for exp in profile['experience'] %}
+            <li>{{ exp }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <h2>Education</h2>
+        <ul>
+            <li>{{ profile['education'] }}</li>
+        </ul>
+    </div>
+    <a href="/">Back to Main Page</a>
+</body>
+</html>

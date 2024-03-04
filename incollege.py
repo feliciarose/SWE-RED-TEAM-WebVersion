@@ -2,11 +2,17 @@
 
 import re
 from deep_translator import GoogleTranslator
+from flask import Flask, render_template, request
 
+app = Flask(__name__)
 
 class InCollegeApp:
 
   def __init__(self):
+    self.profiles = {}
+    self.user_credentials = {} 
+    self.MAX_ACCOUNTS = 10
+
     self.students = [
         {
             "first_name": "John",
@@ -60,64 +66,51 @@ class InCollegeApp:
     self.email = False  # Email notification status
     self.sms = False  # SMS notification status
     self.targeted_advertising = False  # Targeted ads status
-    """
-        self.translations = {
-            "Spanish": {
-                "Welcome to InCollege": "Bienvenido a InCollege",
-                "Main Menu": "Menú principal",
-                "Under construction.": "En construcción.",
-            }
-        }
-        """
 
-  def create_account(self, username, password):
+  def create_account(self, username, password, first_name, last_name):
     # Check if maximum number of accounts has been reached
     if len(self.user_credentials) >= self.MAX_ACCOUNTS:
-      return self.translate_language(
-          "Maximum number of student accounts created.")
+        return "Maximum number of student accounts created."
 
     # restrictions for password
     if len(password) < 8 or len(password) > 13:
-      return self.translate_language(
-          "Password must be between 8 and 13 characters.")
+        return "Password must be between 8 and 13 characters."
     if not re.search(r"[A-Z]", password):
-      return self.translate_language(
-          "Password must contain at least one capital letter.")
+        return "Password must contain at least one capital letter."
     if not re.search(r"\d", password):
-      return self.translate_language(
-          "Password must contain at least one digit.")
+        return "Password must contain at least one digit."
     if not re.search(r"[!@#$%^&*()_+{}|:\"<>?]", password):
-      return self.translate_language(
-          "Password must contain at least one special character.")
+        return "Password must contain at least one special character."
 
-    first_name = input(self.translate_language("Enter your first name: "))
-    last_name = input(self.translate_language("Enter your last name: "))
+    # Check if username already exists
+    if username in self.user_credentials:
+        return "Username already exists. Please choose another username."
 
+    # Create the account
     self.user_credentials[username] = {
         'password': password,
         'first_name': first_name,
         'last_name': last_name,
-        'login_status': True
+        'login_status': False  # Newly created account should not be logged in automatically
     }
 
-    print(self.translate_language("Account created successfully"))
-    self.get_post_login_options()
-
-    # [old code]
-    # Check if username already exists
-    # self.user_credentials[username] = [password, 0]
-    # return "Account created successfully"
+    return "Account created successfully. Please log in."
 
   def login(self, username, password):
-    # Check if username and password match
-    if username in self.user_credentials and self.user_credentials[username][
-        'password'] == password:
-      # [old code]
-      # self.user_credentials[username][1] += 1
-      self.user_credentials[username]['login_status'] = True
-      return self.translate_language("You have successfully logged in")
-    return self.translate_language(
-        "Incorrect username / password, please try again.")
+      # Check if username and password match
+      if username in self.user_credentials and self.user_credentials[username]['password'] == password:
+          # Increment the login attempt counter if it exists
+          if 'login_attempts' in self.user_credentials[username]:
+              self.user_credentials[username]['login_attempts'] += 1
+          else:
+              self.user_credentials[username]['login_attempts'] = 1
+          
+          self.user_credentials[username]['login_status'] = True
+          # Correct login
+          return True
+      # Incorrect login
+      return False
+
 
   #---------------- epic 1 -----------------#
 
@@ -528,8 +521,6 @@ class InCollegeApp:
       return
     
 
-  
-
   def send_friend_request(self, sender_username, receiver_username):
     # Your implementation to send a friend request from sender to receiver
     # Handle privacy and permissions appropriately
@@ -581,3 +572,33 @@ class InCollegeApp:
     self.user_credentials[username]['friend_requests'] = friend_requests
     self.user_credentials[username]['friends'] = friends
     print("updated friends list",self.user_credentials["test"]["friends"])
+
+
+# ----------------------- epic 5 -----------------------#
+
+# ------------------ task4 ----------------
+
+  def create_profile(self, username, profile_title, major, university, about='', experience=[], education=''):
+    major = major.capitalize()
+    university = university.capitalize()
+
+    # Check if the username exists in user_credentials
+    if username not in self.user_credentials:
+        print(f"Error: User with username '{username}' does not exist.")
+        return
+
+    # Create the profile
+    self.profiles[username] = {
+        'profile_title': profile_title,
+        'major': major,
+        'university': university,
+        'about': about,
+        'experience': experience[:3], 
+        'education': education
+    }
+
+    # Print the saved profile
+    print(f"Profile saved for {username}: {self.profiles[username]}")
+
+  def view_profile(self, username):
+      return self.profiles.get(username, {})
