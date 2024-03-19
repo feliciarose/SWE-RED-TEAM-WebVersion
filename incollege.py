@@ -2,7 +2,7 @@
 
 import re
 from deep_translator import GoogleTranslator
-from flask import Flask, render_template, request
+from flask import Flask
 
 app = Flask(__name__)
 
@@ -12,6 +12,8 @@ class InCollegeApp:
     self.profiles = {}
     self.user_credentials = {} 
     self.MAX_ACCOUNTS = 10
+    self.applied_jobs = {}
+    self.saved_jobs = {}
 
     self.students = [
         {
@@ -97,19 +99,22 @@ class InCollegeApp:
     return "Account created successfully. Please log in."
 
   def login(self, username, password):
-      # Check if username and password match
-      if username in self.user_credentials and self.user_credentials[username]['password'] == password:
-          # Increment the login attempt counter if it exists
-          if 'login_attempts' in self.user_credentials[username]:
-              self.user_credentials[username]['login_attempts'] += 1
-          else:
-              self.user_credentials[username]['login_attempts'] = 1
-          
-          self.user_credentials[username]['login_status'] = True
-          # Correct login
-          return True
-      # Incorrect login
+      # Check if username exists
+      if username in self.user_credentials:
+          # Check if username and password match
+          if self.user_credentials[username]['password'] == password:
+              # Increment the login attempt counter if it exists
+              if 'login_attempts' in self.user_credentials[username]:
+                  self.user_credentials[username]['login_attempts'] += 1
+              else:
+                  self.user_credentials[username]['login_attempts'] = 1
+              
+              self.user_credentials[username]['login_status'] = True
+              # Correct login
+              return True
+      # Incorrect login or username doesn't exist
       return False
+
 
 
   #---------------- epic 1 -----------------#
@@ -206,28 +211,23 @@ class InCollegeApp:
     else:
       print(self.translate_language("Thank you for visiting InCollege."))\
 
-  def post_job(self, username):
-    if len(self.job_posts) >= 5:
-      print(
-          self.translate_language(
-              "Maximum number of jobs posted. Please try again later."))
+  def post_job(self, username, title=None, description=None, employer=None, location=None, salary=None, role=None, experience_level=None):
+      if len(self.job_posts) >= 5:
+          return self.translate_language("Maximum number of jobs posted. Please try again later.")
 
-    title = input(self.translate_language("Enter job title: "))
-    description = input(self.translate_language("Enter job description: "))
-    employer = input(self.translate_language("Enter employer: "))
-    location = input(self.translate_language("Enter location: "))
-    salary = input(self.translate_language("Enter salary: "))
+      # Append the job details to the job_posts list
+      self.job_posts.append({
+          'title': title,
+          'description': description,
+          'employer': employer,
+          'location': location,
+          'salary': salary,
+          'role': role,
+          'experience_level': experience_level
+      })
 
-    self.job_posts.append({
-        'title': title,
-        'description': description,
-        'employer': employer,
-        'location': location,
-        'salary': salary,
-        'username': username
-    })
+      return self.translate_language("Job posted successfully.")
 
-    print(self.translate_language("Job posted successfully."))
 
   def find_person(self):
     first_name = input(self.translate_language("Enter the first name of the person you are looking for: "))
@@ -522,8 +522,6 @@ class InCollegeApp:
     
 
   def send_friend_request(self, sender_username, receiver_username):
-    # Your implementation to send a friend request from sender to receiver
-    # Handle privacy and permissions appropriately
 
     # Check if sender and receiver exist
     if sender_username in self.user_credentials and receiver_username in self.user_credentials:
@@ -602,3 +600,77 @@ class InCollegeApp:
 
   def view_profile(self, username):
       return self.profiles.get(username, {})
+
+
+
+# ----------------------- epic 6 -----------------------#
+
+
+# ------------------ task3 ---------------- 
+
+  def job_search(self, company=None, role=None, experience_level=None):
+      filtered_jobs = self.job_posts
+
+      if company:
+          filtered_jobs = [job for job in filtered_jobs if job.get('employer') == company]
+
+      if role:
+          filtered_jobs = [job for job in filtered_jobs if job.get('role') == role]
+
+      if experience_level:
+          filtered_jobs = [job for job in filtered_jobs if job.get('experience_level') == experience_level]
+
+      return filtered_jobs
+
+  def apply_for_job(self, username, job_title, job_description, employer, location, salary, role, experience_level):
+      # Store the job details in the applied_jobs dictionary
+      job_details = {
+          'title': job_title,
+          'description': job_description,
+          'employer': employer,
+          'location': location,
+          'salary': salary,
+          'role': role,
+          'experience_level': experience_level
+      }
+
+      if username in self.applied_jobs:
+          self.applied_jobs[username].append(job_details)
+      else:
+          self.applied_jobs[username] = [job_details]
+
+  def save_job(self, username, job_title, job_description, employer, location, salary, role, experience_level):
+      # Create a dictionary with the job details
+      job_details = {
+          'title': job_title,
+          'description': job_description,
+          'employer': employer,
+          'location': location,
+          'salary': salary,
+          'role': role,
+          'experience_level': experience_level
+      }
+      
+      # Check if the username already has saved jobs
+      if username in self.saved_jobs:
+          # Append the job details to the existing list of saved jobs
+          self.saved_jobs[username].append(job_details)
+      else:
+          # Create a new list with the job details as the first item
+          self.saved_jobs[username] = [job_details]
+
+
+  
+  #BACKEND USE ONLY! No display!
+  def calculate_jobs_not_applied(self):
+        jobs_not_applied = []
+
+        # Extract job IDs from job_posts
+        applied_job_ids = [job['id'] for job in self.job_posts]
+
+        # Iterate over all jobs
+        for job_id, job_details in self.all_jobs.items():
+            if job_id not in applied_job_ids:
+                jobs_not_applied.append((job_id, job_details))
+
+        return jobs_not_applied

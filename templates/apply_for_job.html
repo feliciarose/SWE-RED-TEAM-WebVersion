@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Job</title>
+</head>
+<body>
+    <h1>Apply for Job</h1>
+    <form action="/applied_sucessfully" method="post">
+        <label for="job_title">Job Title:</label><br>
+        <input type="text" id="job_title" name="job_title"><br>
+        
+        <label for="job_description">Job Description:</label><br>
+        <textarea id="job_description" name="job_description" rows="4" cols="50"></textarea><br>
+        
+        <label for="employer">Employer:</label><br>
+        <input type="text" id="employer" name="employer"><br>
+        
+        <label for="location">Location:</label><br>
+        <input type="text" id="location" name="location"><br>
+        
+        <label for="salary">Salary:</label><br>
+        <input type="text" id="salary" name="salary"><br>
+
+        <!-- Add the role field -->
+        <label for="role">Role:</label><br>
+        <input type="text" id="role" name="role"><br>
+
+        <button type="submit">Apply</button>
+    </form>
+</body>
+</html>

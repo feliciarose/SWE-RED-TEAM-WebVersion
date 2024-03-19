@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Jobs</title>
+</head>
+<body>
+    <h1>Jobs List</h1>
+    <form action="/job_search" method="get"> <!-- Corrected action attribute -->
+        <label for="company">Company:</label>
+        <input type="text" id="company" name="company">
+        <br>
+        <label for="role">Role:</label>
+        <input type="text" id="role" name="role">
+        <br>
+        <label for="experience_level">Experience Level:</label>
+        <select id="experience_level" name="experience_level">
+            <option value="">Select Experience Level</option>
+            <option value="Entry-level">Entry-level</option>
+            <option value="Mid-level">Mid-level</option>
+            <option value="Senior-level">Senior-level</option>
+        </select>
+        <br>
+        <button type="submit">Apply Filters</button>
+    </form>
+    <ul>
+        {% for job in jobs %}
+        <li>
+            <h2>{{ job['title'] }}</h2> <!-- Access job details using correct keys -->
+            <p>{{ job['description'] }}</p>
+            <p>Employer: {{ job['employer'] }}</p>
+            <p>Location: {{ job['location'] }}</p>
+            <p>Salary: {{ job['salary'] }}</p>
+            <form action="/apply_for_job" method="post">
+                <input type="hidden" name="job_title" value="{{ job['title'] }}">
+                <input type="hidden" name="job_description" value="{{ job['description'] }}">
+                <input type="hidden" name="employer" value="{{ job['employer'] }}">
+                <input type="hidden" name="location" value="{{ job['location'] }}">
+                <input type="hidden" name="salary" value="{{ job['salary'] }}">
+                <input type="hidden" name="role" value="{{ job['role'] }}">
+                <input type="hidden" name="experience_level" value="{{ job['experience_level'] }}">
+                <button type="submit">Apply</button>
+            </form>
+            <!-- Add the Save Job button -->
+            <form action="/job_saved" method="post">
+                <input type="hidden" name="job_title" value="{{ job['title'] }}">
+                <input type="hidden" name="job_description" value="{{ job['description'] }}">
+                <input type="hidden" name="employer" value="{{ job['employer'] }}">
+                <input type="hidden" name="location" value="{{ job['location'] }}">
+                <input type="hidden" name="salary" value="{{ job['salary'] }}">
+                <input type="hidden" name="role" value="{{ job['role'] }}">
+                <input type="hidden" name="experience_level" value="{{ job['experience_level'] }}">
+                <button type="submit">Save Job</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
