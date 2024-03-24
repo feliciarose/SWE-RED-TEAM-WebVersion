@@ -23,7 +23,8 @@ class InCollegeApp:
             "university": "MIT",
             "major": "Computer Science",
             "friend_requests":[],
-            "friends": []
+            "friends": [],
+            "tier": "Free"
         },
         {
             "first_name": "Lia",
@@ -32,7 +33,8 @@ class InCollegeApp:
             "university": "Harvard",
             "major": "Physics",
             "friend_requests":["Lia"],
-            "friends":[]
+            "friends":[],
+            "tier": "Free"
         },
         {
           "first_name": "Jane",
@@ -41,8 +43,8 @@ class InCollegeApp:
           "university": "Stanford",
           "major": "Mathematics",
           'friend_requests': ["Jane"],
-          'friends':["Lia"]
-          
+          'friends':["Lia"],
+          'tier': 'Free'
         }
         # Add more student records as needed
         # Added students 
@@ -57,12 +59,14 @@ class InCollegeApp:
             'email': "test",
             'login_status': False,
             'friend_requests': ["Jane","Lia"],
-            'friends': ["John"]
+            'friends': ["John"],
+            'tier': 'Free'
         },
     }  # Dictionary to store username and password
     self.MAX_ACCOUNTS = 10  # Maximum number of accounts
     self.job_posts = []  # List to store job posts
     self.friends = []  # List to store friends
+    self.user_tiers = "Free"  # User tier status
 
     self.language = "english"  # Default language
     self.email = False  # Email notification status
@@ -125,7 +129,9 @@ class InCollegeApp:
     options_list = [
         "1. Job search/Internship", "2. Find someone you know",
         "3. Learn a new skill", "4. Useful Links",
-        "5. InCollege Important Links", "6. Friends List", "7. Log out"
+        "5. InCollege Important Links", "6. Friends List",
+        "7. Tier check",
+        "8. Log out"
     ]
     select_option = "\n".join(options_list)
     print(self.translate_language(select_option))
@@ -147,6 +153,8 @@ class InCollegeApp:
       self.friend_management_menu(
       )  # <-- Call the function for friend management
     elif option_number == "7":
+      self.user_tier_check()
+    elif option_number == "8":
       print(self.translate_language("You have successfully logged out."))
       self.main_menu()
     else:
@@ -638,7 +646,16 @@ class InCollegeApp:
           self.applied_jobs[username].append(job_details)
       else:
           self.applied_jobs[username] = [job_details]
-
+          
+      self.applied_jobs.setdefault(username, 0)
+      self.applied_jobs[username] += 1
+      
+      if self.applied_jobs[username] == 5:
+          self.user_tiers[username] = 'Silver'
+      elif self.applied_jobs[username] == 10:
+          self.user_tiers[username] = 'Gold'
+          
+      
   def save_job(self, username, job_title, job_description, employer, location, salary, role, experience_level):
       # Create a dictionary with the job details
       job_details = {
@@ -692,3 +709,44 @@ class InCollegeApp:
                 jobs_not_applied.append((job_id, job_details))
 
         return jobs_not_applied
+      
+# ----------------------- epic 7 -----------------------#
+# ------------------ task2 ------------------#
+
+def user_tier_check(self):
+    username = input(self.translate_language("Enter the username to check the tier: "))
+    if username in self.user_tiers:
+        print (self.translate_language(f"{username} is at the {self.user_tiers[username]} tier."))
+        print (self.translate_language("Would you like to upgrade the tier?"))
+        upgrade = input(self.translate_language("Enter 'yes' to upgrade or 'no' to cancel: "))
+        if upgrade.lower() == 'yes':
+            tier = input(self.translate_language("Tier upgrade price: Silver ($10) or Gold ($20)"))
+            price = float(input(self.translate_language("Enter the payment amount: ")))
+            return self.purchase_tier_upgrade(username, tier, price)
+        else:
+            return self.translate_language("Tier upgrade canceled.")
+    else:
+        return self.translate_language("User tier not found.")
+
+def purchase_tier_upgrade(self, username, tier, price):
+    if username in self.user_tiers:
+        current_tier = self.user_tiers[username]
+        if current_tier == 'Free':
+            if tier == 'Silver' and price >= 10:
+                self.user_tiers[username] = 'Silver'
+                return self.translate_language("Tier upgraded to Silver.")
+            elif tier == 'Gold' and price >= 20:
+                self.user_tiers[username] = 'Gold'
+                return self.translate_language("Tier upgraded to Gold.")
+            else:
+                return self.translate_language("Insufficient payment for the selected tier upgrade.")
+        elif current_tier == 'Silver':
+            if tier == 'Gold' and price >= 10:
+                self.user_tiers[username] = 'Gold'
+                return self.translate_language("Tier upgraded to Gold.")
+            else:
+                return self.translate_language("Insufficient payment for the selected tier upgrade.")
+        else:
+            return self.translate_language("You are already at the highest tier.")
+    else:
+        return self.translate_language("User not found or not eligible for tier upgrade.")

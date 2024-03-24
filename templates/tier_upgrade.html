@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade Your Tier</title>
+</head>
+<body>
+    <body>
+        <h1>Upgrade Your Tier</h1>
+        <form action="/upgrade-tier" method="post">
+            <input type="hidden" name="username" value="USERNAME"> <!-- Dynamically set the username value here -->
+            <label for="tier">Select Tier:</label>
+            <select id="tier" name="tier" required>
+                <option value="Silver">Silver - $10</option>
+                <option value="Gold">Gold - $20</option>
+            </select>
+            <label for="payment">Payment Amount:</label>
+            <input type="number" id="payment" name="payment" step="0.01" required>
+            <input type="submit" value="Upgrade Tier">
+        </form>
+    </body>
+    </html>
