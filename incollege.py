@@ -24,7 +24,7 @@ class InCollegeApp:
             "major": "Computer Science",
             "friend_requests":[],
             "friends": [],
-            "tier": "Free"
+            "user_tier": "Free",
         },
         {
             "first_name": "Lia",
@@ -34,7 +34,7 @@ class InCollegeApp:
             "major": "Physics",
             "friend_requests":["Lia"],
             "friends":[],
-            "tier": "Free"
+            "user_tier": "Free",
         },
         {
           "first_name": "Jane",
@@ -44,7 +44,7 @@ class InCollegeApp:
           "major": "Mathematics",
           'friend_requests': ["Jane"],
           'friends':["Lia"],
-          'tier': 'Free'
+          'user_tier': 'Free',
         }
         # Add more student records as needed
         # Added students 
@@ -60,7 +60,7 @@ class InCollegeApp:
             'login_status': False,
             'friend_requests': ["Jane","Lia"],
             'friends': ["John"],
-            'tier': 'Free'
+            'user_tier': 'Free',
         },
     }  # Dictionary to store username and password
     self.MAX_ACCOUNTS = 10  # Maximum number of accounts
@@ -72,6 +72,7 @@ class InCollegeApp:
     self.email = False  # Email notification status
     self.sms = False  # SMS notification status
     self.targeted_advertising = False  # Targeted ads status
+    self.messages = []  # List to store messages
 
   def create_account(self, username, password, first_name, last_name):
     # Check if maximum number of accounts has been reached
@@ -131,7 +132,8 @@ class InCollegeApp:
         "3. Learn a new skill", "4. Useful Links",
         "5. InCollege Important Links", "6. Friends List",
         "7. Tier check",
-        "8. Log out"
+        "8. message management",
+        "9. Log out"
     ]
     select_option = "\n".join(options_list)
     print(self.translate_language(select_option))
@@ -155,6 +157,8 @@ class InCollegeApp:
     elif option_number == "7":
       self.user_tier_check()
     elif option_number == "8":
+      self.message_management()
+    elif option_number == "9":
       print(self.translate_language("You have successfully logged out."))
       self.main_menu()
     else:
@@ -722,11 +726,13 @@ def user_tier_check(self):
         if upgrade.lower() == 'yes':
             tier = input(self.translate_language("Tier upgrade price: Silver ($10) or Gold ($20)"))
             price = float(input(self.translate_language("Enter the payment amount: ")))
-            return self.purchase_tier_upgrade(username, tier, price)
+            self.purchase_tier_upgrade(username, tier, price)
         else:
-            return self.translate_language("Tier upgrade canceled.")
+            print(self.translate_language("Tier upgrade canceled."))
+            self.get_post_login_options()
     else:
-        return self.translate_language("User tier not found.")
+        print(self.translate_language("User tier not found."))
+        self.get_post_login_options()
 
 def purchase_tier_upgrade(self, username, tier, price):
     if username in self.user_tiers:
@@ -734,19 +740,73 @@ def purchase_tier_upgrade(self, username, tier, price):
         if current_tier == 'Free':
             if tier == 'Silver' and price >= 10:
                 self.user_tiers[username] = 'Silver'
-                return self.translate_language("Tier upgraded to Silver.")
+                print(self.translate_language("Tier upgraded to Silver."))
+                self.get_post_login_options()
             elif tier == 'Gold' and price >= 20:
                 self.user_tiers[username] = 'Gold'
-                return self.translate_language("Tier upgraded to Gold.")
+                print(self.translate_language("Tier upgraded to Gold."))
+                self.get_post_login_options()
             else:
-                return self.translate_language("Insufficient payment for the selected tier upgrade.")
+                print(self.translate_language("Insufficient payment for the selected tier upgrade."))
+                self.get_post_login_options()
         elif current_tier == 'Silver':
             if tier == 'Gold' and price >= 10:
                 self.user_tiers[username] = 'Gold'
-                return self.translate_language("Tier upgraded to Gold.")
+                print(self.translate_language("Tier upgraded to Gold."))
+                self.get_post_login_options()
             else:
-                return self.translate_language("Insufficient payment for the selected tier upgrade.")
+                print(self.translate_language("Insufficient payment for the selected tier upgrade."))
+                self.get_post_login_options()
         else:
-            return self.translate_language("You are already at the highest tier.")
+            print(self.translate_language("You are already at the highest tier."))
+            self.get_post_login_options()
     else:
-        return self.translate_language("User not found or not eligible for tier upgrade.")
+        print(self.translate_language("User not found or not eligible for tier upgrade."))
+        self.get_post_login_options()
+      
+# ------------------ task1 ------------------#
+
+def message_management(self):
+    new_msg = [msg for msg in self.messages if not msg['read']]
+    print(self.translate_language("Message Management"))
+    if new_msg:
+        print(self.translate_language(f"You have {len(new_msg)} new messages.\n"))
+    message_options = [
+        "1. Send Message",
+        "2. View Messages",
+        "3. Return to Previous Menu"
+    ]
+    message_menu = "\n".join(message_options)
+    print(self.translate_language(message_menu))
+    selected_option = input(self.translate_language("Select an option: "))
+
+    if selected_option == "1":
+        self.send_message()
+    elif selected_option == "2":
+        self.view_messages()
+    elif selected_option == "3":
+        self.get_post_login_options()
+    else:
+        print(self.translate_language("Invalid Option, please try again."))
+        self.message_management()
+        
+def send_message(self):
+    recipient = input(self.translate_language("Enter the recipient's username: "))
+    message = input(self.translate_language("Enter your message: "))
+    self.messages.append({
+        'sender': self.user_credentials['username'],
+        'recipient': recipient,
+        'message': message,
+        'read': False
+    })
+    print(self.translate_language("Message sent successfully."))
+    
+def view_messages(self):
+    if self.messages:
+      if message['recipient'] == self.user_credentials['username']:
+        for message in self.messages:
+            print(f"From: {message['sender']}\nMessage: {message['message']}")
+            message['read'] = True
+    else:
+        print(self.translate_language("No messages found."))
+        self.message_management()

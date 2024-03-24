@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send a Message</title>
+</head>
+<body>
+    <h1>Send a Message</h1>
+    <form action="/send-message" method="post">
+        <label for="recipient">Enter the recipient's username:</label>
+        <input type="text" id="recipient" name="recipient" required><br>
+        <label for="message">Enter your message:</label><br>
+        <textarea id="message" name="message" required></textarea><br>
+        <input type="submit" value="Send Message">
+    </form>
+</body>
+</html>
