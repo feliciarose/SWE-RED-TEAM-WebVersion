@@ -715,7 +715,7 @@ class InCollegeApp:
         return jobs_not_applied
       
 # ----------------------- epic 7 -----------------------#
-# ------------------ task2 ------------------#
+# ------------------ task 2 ------------------#
 
 def user_tier_check(self):
     username = input(self.translate_language("Enter the username to check the tier: "))
@@ -764,7 +764,7 @@ def purchase_tier_upgrade(self, username, tier, price):
         print(self.translate_language("User not found or not eligible for tier upgrade."))
         self.get_post_login_options()
       
-# ------------------ task1 ------------------#
+# ------------------ task 1 & 3 ------------------#
 
 def message_management(self):
     new_msg = [msg for msg in self.messages if not msg['read']]
@@ -781,7 +781,17 @@ def message_management(self):
     selected_option = input(self.translate_language("Select an option: "))
 
     if selected_option == "1":
-        self.send_message()
+        if self.user_tiers[self.user_credentials['username']] == 'Gold':
+            self.send_message()
+        elif self.user_tiers[self.user_credentials['username']] == 'Silver':
+            friend_username = input(self.translate_language("Enter your friend's username: "))
+            if friend_username in self.friends[self.user_credentials['username']]:
+                self.send_message(recipient=friend_username)
+            else:
+                print(self.translate_language("You can only message friends at Silver tier."))
+        else:
+            print(self.translate_language("You must upgrade to at least Silver tier to send messages."))
+        self.message_management()
     elif selected_option == "2":
         self.view_messages()
     elif selected_option == "3":
@@ -789,9 +799,10 @@ def message_management(self):
     else:
         print(self.translate_language("Invalid Option, please try again."))
         self.message_management()
-        
-def send_message(self):
-    recipient = input(self.translate_language("Enter the recipient's username: "))
+
+def send_message(self, recipient=None):
+    if recipient is None:
+        recipient = input(self.translate_language("Enter the recipient's username: "))
     message = input(self.translate_language("Enter your message: "))
     self.messages.append({
         'sender': self.user_credentials['username'],
