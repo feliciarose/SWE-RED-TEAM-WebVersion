@@ -1,0 +1,29 @@
+#-----------------Muhannad-------------#
+def test_incollege():
+    # Initialize an instance of the class
+    incollege = InCollege()
+
+    # Simulate account creation and login
+    print("Simulating account creation and login:")
+    incollege.create_account("testuser", "password", "Test", "User")
+    incollege.login("testuser", "password")
+
+    # Explore post-login options
+    print("\nExploring post-login options:")
+    incollege.get_post_login_options()
+
+    # Simulate applying for a job
+    print("\nSimulating applying for a job:")
+    incollege.apply_for_job("testuser", "Software Engineer", "Job description", "Tech Company", "Remote", 100000, "Full-time", "Mid-level")
+
+    # Manage messages
+    print("\nManaging messages:")
+    incollege.message_management()
+
+    # Upgrade user tier
+    print("\nSimulating user tier upgrade:")
+    incollege.purchase_tier_upgrade("testuser", "Silver", 10)
+
+    # Log out
+    print("\nLogging out:")
+    incollege.logout()
