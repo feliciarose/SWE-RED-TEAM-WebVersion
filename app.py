@@ -166,5 +166,51 @@ def save_job():
         # Redirect to job saved page
         return render_template('/job_saved.html', message=job)
 
+# ----------------------- epic 7 -----------------------#
+
+@app.route('/user_tier_check', methods=['GET', 'POST'])
+def user_tier_check():
+    user_tiers = incollege_app.get_user_tier('username')
+    if request.method == 'POST':
+        username = request.form['username']
+        if username in user_tiers:
+            tier = user_tiers[username]
+            return render_template('tier_status.html', username=username, tier=tier, show_upgrade=True)
+        else:
+            message = "User tier not found."
+            return render_template('user_tier_check.html', message=message)
+    return render_template('user_tier_check.html')
+
+
+messages = []
+
+@app.route('/message')
+def message_management():
+    new_msg_count = len([msg for msg in messages if not msg['read'] and msg['recipient'] == 'username'])
+    return render_template('message_management.html', new_msg_count=new_msg_count)
+
+@app.route('/send-message', methods=['GET', 'POST'])
+def send_message():
+    if request.method == 'POST':
+        recipient = request.form['recipient']
+        message = request.form['message']
+        messages.append({
+            'sender': 'username',
+            'recipient': recipient,
+            'message': message,
+            'read': False
+        })
+        return redirect(url_for('message_management'))
+    else:
+        return render_template('send_message.html')
+
+@app.route('/view-messages')
+def view_messages():
+    user_messages = [msg for msg in messages if msg['recipient'] == 'username']
+    for msg in user_messages:
+        msg['read'] = True
+    return render_template('view_messages.html', user_messages=user_messages)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
