@@ -9,7 +9,7 @@ incollege_app = InCollegeApp()
 def index():
     return render_template('index.html')
 
-@app.route('/create_account', methods=['POST'])
+@app.route('/create_account', methods=['GET','POST'])
 def create_account():
     username = request.form.get('username')
     password = request.form.get('password')
