@@ -136,7 +136,8 @@ class InCollegeApp:
         "5. InCollege Important Links", "6. Friends List",
         "7. Tier check",
         "8. message management",
-        "9. Log out"
+        "9. Notifications",  # <-- Add this option for notifications
+        "10. Log out"
     ]
     select_option = "\n".join(options_list)
     print(self.translate_language(select_option))
@@ -155,13 +156,14 @@ class InCollegeApp:
     elif option_number == "5":
       self.important_links()
     elif option_number == "6":
-      self.friend_management_menu(
-      )  # <-- Call the function for friend management
+      self.friend_management_menu()  # <-- Call the function for friend management
     elif option_number == "7":
       self.user_tier_check()
     elif option_number == "8":
       self.message_management()
     elif option_number == "9":
+      self.view_notifications()
+    elif option_number == "10":
       print(self.translate_language("You have successfully logged out."))
       self.main_menu()
     else:
@@ -838,17 +840,21 @@ def send_notification(self, username, message):
   self.notifications[username].append({"message": message, "read": False})
   return self.translate_language("Notification sent successfully.")
 
-def view_notifications(self, username):
+def view_notifications(self, user=None):
   new_msg = [msg for msg in self.messages if not msg['read']]
+  if user is None:
+      user = "test"
+  else:
+      user = self.user_credentials['username']
   if new_msg:
       print(self.translate_language(f"You have messages waiting for you\n"))
         
   print(self.translate_language("View Notifications"))
-  if username in self.notifications:
-      for notification in self.notifications[username]:
+  if user in self.notifications:
+      for notification in self.notifications[user]:
           print(f"Notification: {notification['message']}")
           notification["read"] = True
-      self.notifications[username] = [n for n in self.notifications[username] if not n["read"]]
+      self.notifications[user] = [n for n in self.notifications[user] if not n["read"]]
   else:
       print(self.translate_language("No notifications found."))
       
