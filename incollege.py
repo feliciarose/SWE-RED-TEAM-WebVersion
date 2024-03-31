@@ -3,6 +3,7 @@
 import re
 from deep_translator import GoogleTranslator
 from flask import Flask
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -73,6 +74,8 @@ class InCollegeApp:
     self.sms = False  # SMS notification status
     self.targeted_advertising = False  # Targeted ads status
     self.messages = []  # List to store messages
+    self.notifications = []  # List to store notifications
+    self.last_application_date = {}  # Dictionary to store last application date for each user
 
   def create_account(self, username, password, first_name, last_name):
     # Check if maximum number of accounts has been reached
@@ -653,6 +656,7 @@ class InCollegeApp:
           
       self.applied_jobs.setdefault(username, 0)
       self.applied_jobs[username] += 1
+      self.last_application_date[username] = datetime.now()
       
       if self.applied_jobs[username] == 5:
           self.user_tiers[username] = 'Silver'
@@ -825,3 +829,30 @@ class InCollegeApp:
     else:
         print(self.translate_language("No messages found."))
         # self.message_management() #commented out to avoid recursion error in testing
+        
+# ------------------ task 1 & 2 epic 8 ------------------#
+
+def send_notification(self, username, message):
+  if username not in self.notifications:
+      self.notifications[username] = []
+  self.notifications[username].append({"message": message, "read": False})
+  return self.translate_language("Notification sent successfully.")
+
+def view_notifications(self, username):
+  new_msg = [msg for msg in self.messages if not msg['read']]
+  if new_msg:
+      print(self.translate_language(f"You have messages waiting for you\n"))
+        
+  print(self.translate_language("View Notifications"))
+  if username in self.notifications:
+      for notification in self.notifications[username]:
+          print(f"Notification: {notification['message']}")
+          notification["read"] = True
+      self.notifications[username] = [n for n in self.notifications[username] if not n["read"]]
+  else:
+      print(self.translate_language("No notifications found."))
+      
+def check_job_application_reminder(self):
+  for username, last_application_date in self.last_application_date.items():
+      if datetime.now() - last_application_date > timedelta(days=7):
+          self.send_notification(username, "Remember - you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!")
