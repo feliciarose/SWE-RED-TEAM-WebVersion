@@ -3,6 +3,7 @@
 import re
 from deep_translator import GoogleTranslator
 from flask import Flask
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -62,6 +63,8 @@ class InCollegeApp:
             'friends': ["John"],
             'user_tier': 'Free',
         },
+
+    
     }  # Dictionary to store username and password
     self.MAX_ACCOUNTS = 10  # Maximum number of accounts
     self.job_posts = []  # List to store job posts
@@ -73,6 +76,7 @@ class InCollegeApp:
     self.sms = False  # SMS notification status
     self.targeted_advertising = False  # Targeted ads status
     self.messages = []  # List to store messages
+    self.notifications = []  # List to store notifications
 
   def create_account(self, username, password, first_name, last_name):
     # Check if maximum number of accounts has been reached
@@ -132,8 +136,9 @@ class InCollegeApp:
         "3. Learn a new skill", "4. Useful Links",
         "5. InCollege Important Links", "6. Friends List",
         "7. Tier check",
-        "8. message management",
-        "9. Log out"
+        "8. Message management",
+        "9. Notifications"  
+        "10. Log out"
     ]
     select_option = "\n".join(options_list)
     print(self.translate_language(select_option))
@@ -159,6 +164,8 @@ class InCollegeApp:
     elif option_number == "8":
       self.message_management()
     elif option_number == "9":
+      self.view_notifications()
+    elif option_number == "10":
       print(self.translate_language("You have successfully logged out."))
       self.main_menu()
     else:
@@ -825,3 +832,63 @@ class InCollegeApp:
     else:
         print(self.translate_language("No messages found."))
         # self.message_management() #commented out to avoid recursion error in testing
+
+# ------------------ Epic 8 task 3 ------------------#
+
+# kainans part of notifications
+        
+  def send_notification(self, username, message):
+    if username not in self.notifications:
+        self.notifications[username] = []
+    self.notifications[username].append({"message": message, "read": False})
+    return self.translate_language("Notification sent successfully.")
+
+  def view_notifications(self, username):
+    new_msg = [msg for msg in self.messages if not msg['read']]
+    if new_msg:
+        print(self.translate_language(f"You have messages waiting for you\n"))
+
+    print(self.translate_language("View Notifications"))
+    if username in self.notifications:
+        for notification in self.notifications[username]:
+            print(f"Notification: {notification['message']}")
+            notification["read"] = True
+        self.notifications[username] = [n for n in self.notifications[username] if not n["read"]]
+    else:
+        print(self.translate_language("No notifications found."))
+
+  def check_job_application_reminder(self):
+    for username, last_application_date in self.last_application_date.items():
+        if datetime.now() - last_application_date > timedelta(days=7):
+            self.send_notification(username, "Remember - you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!")
+
+  
+# ------------------ epic8 task 3 and 4 ------------------#
+
+
+  def profile_creation_reminder(self, username):
+    if username in self.user_credentials:
+        if username in self.profiles:
+            if self.profiles[username]:
+              notification = self.translate_language("Your profile is incomplete. Complete your profile to increase visibility.")
+        else:
+            notification = self.translate_language("No profile found. Don't forget to create a profile to increase visibility.")
+
+        self.notifications[username].append({"message": notification, "read": False})
+
+  def unread_message_reminder(self, username):
+    if username in self.user_credentials:
+      unread_messages = [msg for msg in self.messages if msg['recipient'] == username and not msg['read']]
+      if unread_messages:
+          notification = self.translate_language({"message": f"You have {len(unread_messages)} unread messages.", "read": False})
+          self.notifications[username].append(notification)
+
+  def job_section_reminder(self, username):
+    if username in self.user_credentials:
+        self.notifications[username].append({"message": f" You have currently applied for {len(self.applied_jobs)}) jobs.", "read": False})
+
+  def new_job_reminder(self, username):
+    if username in self.user_credentials:
+      if len(self.job_posts)>0: 
+          self.notifications[username].append({"message": f"A new job <{self.job_posts[len(self.job_posts)]['title']}> has been posted", "read": False})
+
