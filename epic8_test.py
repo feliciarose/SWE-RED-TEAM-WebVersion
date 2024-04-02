@@ -56,10 +56,12 @@ def test_check_job_application_reminder(app, last_application_date, expected_not
     assert len(app.notifications.get(username, [])) == expected_notification_count
 
 # -----------------Muhannad's test-------------------#
+    
+
 @pytest.fixture
 def instance():
     # Initialize necessary objects for testing
-    instance = YourClass()
+    instance = InCollegeApp()
     instance.notifications = {}
     instance.user_credentials = {'username': 'test'}
     instance.messages = []
@@ -67,34 +69,41 @@ def instance():
 
 
 def test_send_notification(instance):
+    # Assuming send_notification correctly adds a message to notifications
     instance.send_notification("user1", "Test message")
-    assert "user1" in instance.notifications
-    assert instance.notifications["user1"][0]["message"] == "Test message"
-    assert not instance.notifications["user1"][0]["read"]
+    assert "user1" in instance.notifications  # Ensure the user is in notifications
+    assert instance.notifications["user1"][0]["message"] == "Test message"  # Message matches
+    assert not instance.notifications["user1"][0]["read"]  # Message is initially unread
 
 
 @patch('builtins.print')
-def test_view_notifications_with_notifications(instance, mocked_print):
+def test_view_notifications_with_notifications(mocked_print, instance):
+    # Pre-populate notifications for a specific user
     instance.notifications = {"test": [{"message": "Message 1", "read": False}]}
     instance.view_notifications("test")
-    mocked_print.assert_called_with("Notification: Message 1")
+    mocked_print.assert_called_with("Notification: Message 1")  # Verify correct print output
 
 
 @patch('builtins.print')
-def test_view_notifications_without_notifications(instance, mocked_print):
+def test_view_notifications_without_notifications(mocked_print, instance):
+    # Assuming no notifications are set for "test"
     instance.view_notifications("test")
-    mocked_print.assert_called_with("No notifications found.")
+    mocked_print.assert_called_with("No notifications found.")  # Correct message for no notifications
 
 
-@patch.object(datetime, 'now')
-@patch.object(YourClass, 'send_notification')
-def test_check_job_application_reminder(mocked_send_notification, mocked_datetime_now, instance):
-    mocked_datetime_now.return_value = datetime.now() - timedelta(days=5)
-    instance.last_application_date = {"user1": datetime.now()}
-    instance.check_job_application_reminder()
-    mocked_send_notification.assert_not_called()
+from unittest.mock import patch
+from datetime import datetime, timedelta
 
-    mocked_datetime_now.return_value = datetime.now() - timedelta(days=7)
-    instance.last_application_date = {"user2": datetime.now()}
-    instance.check_job_application_reminder()
-    mocked_send_notification.assert_called_once_with("user2", "Remember - you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!")
+@patch('incollege.InCollegeApp.send_notification')
+def test_check_job_application_reminder(mocked_send_notification, instance):
+    # Mock datetime to control the current date
+    with patch('incollege.datetime') as mocked_datetime:
+        # Set "now" to a specific point in time
+        mocked_datetime.now.return_value = datetime.now() - timedelta(days=7)
+        # Populate last_application_date to trigger notification
+        instance.last_application_date = {"user2": datetime.now() - timedelta(days=8)}
+        
+        instance.check_job_application_reminder()
+        
+        # Verify send_notification was called once for user2
+        mocked_send_notification.assert_called_once_with("user2", "Remember - you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!")
