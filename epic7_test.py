@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 from incollege import InCollegeApp
-# make sure to run `pytest epic6_test.py` in the terminal to test the code
+# make sure to run `pytest epic7_test.py` in the terminal to test the code
 
 @pytest.fixture
 

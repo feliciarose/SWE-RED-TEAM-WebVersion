@@ -76,7 +76,8 @@ class InCollegeApp:
     self.sms = False  # SMS notification status
     self.targeted_advertising = False  # Targeted ads status
     self.messages = []  # List to store messages
-    self.notifications = []  # List to store notifications
+    self.notifications = {}  # List to store notifications
+    self.last_application_date = {}  # Dictionary to store last application date for each user
 
   def create_account(self, username, password, first_name, last_name):
     # Check if maximum number of accounts has been reached
@@ -159,6 +160,7 @@ class InCollegeApp:
     elif option_number == "6":
       self.friend_management_menu(
       )  # <-- Call the function for friend management
+      self.friend_management_menu()  # <-- Call the function for friend management
     elif option_number == "7":
       self.user_tier_check()
     elif option_number == "8":
@@ -660,6 +662,7 @@ class InCollegeApp:
           
       self.applied_jobs.setdefault(username, 0)
       self.applied_jobs[username] += 1
+      self.last_application_date[username] = datetime.now()
       
       if self.applied_jobs[username] == 5:
           self.user_tiers[username] = 'Silver'
@@ -833,27 +836,29 @@ class InCollegeApp:
         print(self.translate_language("No messages found."))
         # self.message_management() #commented out to avoid recursion error in testing
 
-# ------------------ Epic 8 task 3 ------------------#
+# ------------------ task 1 & 2 epic 8 ------------------#
 
-# kainans part of notifications
-        
   def send_notification(self, username, message):
     if username not in self.notifications:
         self.notifications[username] = []
     self.notifications[username].append({"message": message, "read": False})
     return self.translate_language("Notification sent successfully.")
 
-  def view_notifications(self, username):
+  def view_notifications(self, user=None):
     new_msg = [msg for msg in self.messages if not msg['read']]
+    if user is None:
+        user = "test"
+    else:
+        user = self.user_credentials['username']
     if new_msg:
         print(self.translate_language(f"You have messages waiting for you\n"))
 
     print(self.translate_language("View Notifications"))
-    if username in self.notifications:
-        for notification in self.notifications[username]:
+    if user in self.notifications:
+        for notification in self.notifications[user]:
             print(f"Notification: {notification['message']}")
             notification["read"] = True
-        self.notifications[username] = [n for n in self.notifications[username] if not n["read"]]
+        self.notifications[user] = [n for n in self.notifications[user] if not n["read"]]
     else:
         print(self.translate_language("No notifications found."))
 
@@ -861,7 +866,6 @@ class InCollegeApp:
     for username, last_application_date in self.last_application_date.items():
         if datetime.now() - last_application_date > timedelta(days=7):
             self.send_notification(username, "Remember - you're going to want to have a job when you graduate. Make sure that you start to apply for jobs today!")
-
   
 # ------------------ epic8 task 3 and 4 ------------------#
 
