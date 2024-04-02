@@ -211,6 +211,17 @@ def view_messages():
         msg['read'] = True
     return render_template('view_messages.html', user_messages=user_messages)
 
+# ----------------------- epic 8 -----------------------#
+
+notifications = []
+
+@app.route('/view-notifications')
+def view_notifications():
+    user_notifications = [notif for notif in notifications if notif['recipient'] == 'username']
+    for notif in user_notifications:
+        notif['read'] = True
+    return render_template('view_notifications.html', user_notifications=user_notifications)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
