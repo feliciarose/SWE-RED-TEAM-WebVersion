@@ -20,9 +20,9 @@
             <label for="profile_title">Profile Title:</label>
             <input type="text" id="profile_title" name="profile_title" required><br>
             <label for="major">Major:</label>
-            <input type="text" id="major" name="major" required pattern="[A-Za-z][a-z]*"><br>
+            <input type="text" id="major" name="major" required pattern="[A-Za-z\s]*" title = "Input must only contain letters and spaces."><br>
             <label for="university">University Name:</label>
-            <input type="text" id="university" name="university" required pattern="[A-Za-z][a-z]*"><br>
+            <input type="text" id="university" name="university" required pattern="[A-Za-z\s]*"title = "Input must only contain letters and spaces."><br>
             <label for="about">About:</label>
             <textarea id="about" name="about" required></textarea><br>
             <label for="experience">Experience:</label>
